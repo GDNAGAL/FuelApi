@@ -123,9 +123,24 @@ namespace FuelApi.Controllers
             adapter.Fill(DriverDataTable);
             conn.Close();
             string jsonResult = JsonConvert.SerializeObject(DriverDataTable, Newtonsoft.Json.Formatting.Indented);
-
             return jsonResult;
-            //return _dbContext.DriverDetails.ToList();
+        }
+
+        [HttpPost]
+        [Route("SearchDriver")]
+        public string SearchDriver(string? search)
+        {
+            DataTable DriverDataTable = new DataTable();
+
+            MySqlCommand command = new MySqlCommand("search_in_DriverList", conn);
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.Add(new MySqlParameter("search", search));
+            conn.Open();
+            MySqlDataAdapter adapter = new MySqlDataAdapter(command);
+            adapter.Fill(DriverDataTable);
+            conn.Close();
+            string jsonResult = JsonConvert.SerializeObject(DriverDataTable, Newtonsoft.Json.Formatting.Indented);
+            return jsonResult;
         }
     }
 }

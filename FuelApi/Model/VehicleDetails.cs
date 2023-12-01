@@ -14,7 +14,7 @@ namespace FuelApi.Model
         public string? Color { get; set; }
         [Required]
         public string? RegistrationNo { get; set; }
-        public string? Make { get; set; }
+        //public string? Make { get; set; }
         public string? Model { get; set; }
         public int Year { get; set; }
         public int Age { get; set; }

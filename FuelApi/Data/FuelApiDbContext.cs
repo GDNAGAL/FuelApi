@@ -10,5 +10,7 @@ namespace FuelApi.Data
         public DbSet<DriverDetails> DriverDetails { get; set; }
         public DbSet<VehicleDetails> VehicleDetails { get; set; }
         public DbSet<WorkOreder> WorkOrders { get; set; }
+        public DbSet<Destinations> Destinations { get; set; }
+        public DbSet<RouteDetails> RouteDetails { get; set; }
     }
 }
