@@ -81,5 +81,18 @@ namespace FuelApi.Controllers
             }
             return Ok("invalid Id");
         }
+
+        [HttpGet]
+        [Route("GetRoutesByStartAndEndPoints")]
+        public List<RouteDetails> GetRoutesByStartAndEndPoints(string? StartPoint,string? EndPoint)
+        {
+            List<RouteDetails> routeDetails = new List<RouteDetails>();
+            if(StartPoint!=null && EndPoint != null)
+            {
+                routeDetails= _dbContext.RouteDetails.Where(x=>x.EndPoint==EndPoint && x.StartPoint==StartPoint).ToList();
+                return routeDetails;
+            }
+            return routeDetails;
+        }
     }
 }

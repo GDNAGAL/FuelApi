@@ -16,8 +16,8 @@ namespace FuelApi.Model
         public string? RouteId { get; set; }
         public string? DestinationID { get; set; }
         public int EstLoadingTime { get; set; }
-        public TimeSpan DepatureTime { get; set; }
-        public TimeSpan EstArrivalTime { get; set; }
+        public DateTime DepatureTime { get; set; }
+        public DateTime EstArrivalTime { get; set; }
         public int EstUnloadingTime { get; set; }
         public int DelayTime { get; set; }
     }
