@@ -25,7 +25,7 @@ namespace FuelApi.Controllers
 
         [HttpPost]
         [Route("AddNewDestination")]
-        public string AddVehile(Destinations oreder)
+        public string AddVehicle(Destinations oreder)
         {
             if (oreder != null)
             {                

@@ -1,5 +1,6 @@
 ﻿using FuelApi.Model;
 using Microsoft.EntityFrameworkCore;
+using TransportWebApi.Model;
 
 namespace FuelApi.Data
 {
@@ -12,5 +13,8 @@ namespace FuelApi.Data
         public DbSet<WorkOreder> WorkOrders { get; set; }
         public DbSet<Destinations> Destinations { get; set; }
         public DbSet<RouteDetails> RouteDetails { get; set; }
+        public DbSet<Driver> Drivers { get; set; }
+        public DbSet<Vehicle> Vehicles { get; set; }
+        public DbSet<Package> Package { get; set; }
     }
 }
