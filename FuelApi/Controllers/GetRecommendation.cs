@@ -2,8 +2,11 @@
 using FuelApi.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Data;
 using System.Text.Json.Nodes;
 
 namespace FuelApi.Controllers
@@ -12,11 +15,15 @@ namespace FuelApi.Controllers
     [ApiController]
     public class GetRecommendation : ControllerBase
     {
+        private readonly MySqlConnection conn;
         private readonly FuelApiDbContext _dbContext;
+        private readonly IConfiguration _configuration;
 
-        public GetRecommendation(FuelApiDbContext dbContext)
+        public GetRecommendation(FuelApiDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
+            _configuration = configuration;
+            conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
         }
         [HttpPost]
         public async Task<JToken> GetRecommendations(string origin,string destination)
@@ -40,9 +47,23 @@ namespace FuelApi.Controllers
                 //JObject json_routes = JObject.Parse(json["routes"].ToString());
                 for (var i = 0; i < json["routes"].Count(); i++)
                 {
-                    order=new(){RouteID = Guid.NewGuid().ToString(), RouteName = json["routes"][i]["summary"].ToString(), Distance = json["routes"][i]["legs"][0]["distance"]["text"].ToString(),StartPoint=origin,EndPoint=destination };
+                    conn.Open();
+                    MySqlCommand command = new MySqlCommand("getBestDrivers", conn);
+                    command.CommandType = CommandType.StoredProcedure;
+                    MySqlDataReader adapter = command.ExecuteReader();
+                    int driverID = 0;
+                    if (adapter.Read())
+                    {
+                        driverID = Convert.ToInt32(adapter["DriverID"]);
+                    }
+                    conn.Close();
+
+                    order =new(){RouteID = Guid.NewGuid().ToString(), DriverID = driverID, RouteName = json["routes"][i]["summary"].ToString(), Distance = json["routes"][i]["legs"][0]["distance"]["text"].ToString(),StartPoint=origin,EndPoint=destination };
                     _dbContext.RouteDetails.Add(order);
                     _dbContext.SaveChanges();
+
+
+                    
                 }
 
 
