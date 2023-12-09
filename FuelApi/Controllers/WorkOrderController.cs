@@ -18,18 +18,17 @@ namespace FuelApi.Controllers
 
         [HttpGet]
         [Route("GetAllWorkOrderDetails")]
-        public List<WorkOreder> GetAllWorkOrderDetails()
+        public List<WorkOrder> GetAllWorkOrderDetails()
         {
             return _dbContext.WorkOrders.ToList();
         }
 
         [HttpPost]
         [Route("AddNewWorkOrder")]
-        public string AddVehile(WorkOreder oreder)
+        public string AddOrder(WorkOrder oreder)
         {
             if (oreder != null)
-            {
-                oreder.WorkOrderID = Guid.NewGuid().ToString();
+            {                
                 _dbContext.WorkOrders.Add(oreder);
                 var result = _dbContext.SaveChanges();
                 if (result == 0)
@@ -46,7 +45,7 @@ namespace FuelApi.Controllers
 
         [HttpPost]
         [Route("UpdateDetails")]
-        public string UpdateWorkOrder(WorkOreder oreder)
+        public string UpdateWorkOrder(WorkOrder oreder)
         {
             if (oreder != null)
             {
@@ -88,10 +87,10 @@ namespace FuelApi.Controllers
         {
             if (WorkOrderId != null)
             {
-                VehicleDetails vehicle = _dbContext.VehicleDetails.Find(WorkOrderId);
-                if (vehicle != null)
+                WorkOrder order = _dbContext.WorkOrders.Find(WorkOrderId);
+                if (order != null)
                 {
-                    _dbContext.VehicleDetails.Remove(vehicle);
+                    _dbContext.WorkOrders.Remove(order);
                     var result = _dbContext.SaveChanges();
                     if (result == 0)
                     {
