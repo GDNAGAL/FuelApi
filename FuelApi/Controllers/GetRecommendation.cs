@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using System.Data;
 using System.Text.Json.Nodes;
 using TransportWebApi.Model;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace FuelApi.Controllers
 {
@@ -27,9 +28,11 @@ namespace FuelApi.Controllers
             conn = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
         }
         [HttpPost]
-        public async Task<JToken> GetRecommendations(string origin,string destination,Package package)
+        [Route("GetRecommendations")]
+        public async Task<string> GetRecommendations(string origin,string destination,Package package)
         {
             JToken json_route = new JObject();
+            string packageID = Guid.NewGuid().ToString();
             try
             {
                 List<int> VID = CreatePackage(package);
@@ -46,7 +49,6 @@ namespace FuelApi.Controllers
                 JObject json = JObject.Parse(jsondata);
                 json_route = json["routes"][0];
                 RouteDetails order = new();
-               
                 //JObject json_routes = JObject.Parse(json["routes"].ToString());
                 for (var i = 0; i < json["routes"].Count(); i++)
                 {
@@ -60,10 +62,10 @@ namespace FuelApi.Controllers
                         driverID = Convert.ToInt32(adapter["DriverID"]);
                     }
                     conn.Close();
-
-                    order =new(){RouteID = Guid.NewGuid().ToString(), DriverID = driverID, RouteName = json["routes"][i]["summary"].ToString(), Distance = json["routes"][i]["legs"][0]["distance"]["text"].ToString(), StartPoint = origin, EndPoint = destination, VehicleID = VID[i] };
+                    string gid = Guid.NewGuid().ToString();
+                    order =new(){RouteID = gid, packageID = packageID, DriverID = driverID, RouteName = json["routes"][i]["summary"].ToString(), Distance = json["routes"][i]["legs"][0]["distance"]["text"].ToString(), StartPoint = origin, EndPoint = destination, VehicleID = VID[i] };
                     _dbContext.RouteDetails.Add(order);
-                    _dbContext.SaveChanges();                    
+                    _dbContext.SaveChanges();
                 }
 
 
@@ -72,8 +74,20 @@ namespace FuelApi.Controllers
             {
                 Console.WriteLine(ex.Message);
             }
-            return json_route;
+
+            DataTable RecommendationTable = new DataTable();
+
+            MySqlCommand Rcommand = new MySqlCommand("getRecommendationData", conn);
+            Rcommand.CommandType = CommandType.StoredProcedure;
+            Rcommand.Parameters.Add(new MySqlParameter("search", packageID));
+            conn.Open();
+            MySqlDataAdapter Radapter = new MySqlDataAdapter(Rcommand);
+            Radapter.Fill(RecommendationTable);
+            conn.Close();
+            string jsonResult = JsonConvert.SerializeObject(RecommendationTable, Newtonsoft.Json.Formatting.Indented);
+            return jsonResult;
         }
+        [ApiExplorerSettings(IgnoreApi = true)]
         public List<int> CreatePackage(Package details)
         {
             Vehicle vehicle = new Vehicle();
@@ -82,8 +96,8 @@ namespace FuelApi.Controllers
 
             if (details != null)
             {
-                _dbContext.Package.Add(details);
-                _dbContext.SaveChanges();
+                //_dbContext.Package.Add(details);
+                //_dbContext.SaveChanges();
                 if (details.PackageType != null)
                 {
                     vehicle.Capacity = details.Quantity;
@@ -101,7 +115,7 @@ namespace FuelApi.Controllers
                         vehicle.VehicleType = "GAS TANKER";
                     }
                     list = GetVehicles(vehicle, 0);
-                    var li = list.Select(x => x.LastMaintainance).ToList();
+                    //var li = list.Select(x => x.LastMaintainance).ToList();
                     //List<DateTime> max=new List<DateTime>();
                     //for(int i=0;i<4;i++)
                     //{
@@ -120,6 +134,7 @@ namespace FuelApi.Controllers
             return Vid;
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         List<Vehicle> GetVehicles(Vehicle vehicle, int valplush)
         {
             var list = _dbContext.Vehicles.Where(x => x.VehicleType == vehicle.VehicleType && x.Unit == vehicle.Unit && x.Capacity == getCapacity(vehicle.Capacity) + valplush).ToList();
@@ -134,6 +149,7 @@ namespace FuelApi.Controllers
             return list;
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         int getCapacity(int Capacity)
         {
             if (Capacity <= 500)

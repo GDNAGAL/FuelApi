@@ -5,6 +5,7 @@ namespace FuelApi.Model
     public class RouteDetails
     {
         [Key] public string? RouteID { get; set; }
+        public string? packageID { get; set; }
         public string? StartPoint { get; set; }
         public string? EndPoint { get; set; }
         public string? Distance { get; set; }

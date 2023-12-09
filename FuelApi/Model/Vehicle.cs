@@ -9,6 +9,5 @@ namespace TransportWebApi.Model
         public int VTypeID { get; set; }
         public int Capacity { get; set; }
         public string? Unit { get; set; }
-        public DateTime LastMaintainance { get; set; }
     }
 }
