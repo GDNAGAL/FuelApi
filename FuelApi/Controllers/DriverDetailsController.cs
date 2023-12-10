@@ -82,6 +82,24 @@ namespace FuelApi.Controllers
             }
             return Ok("invalid Id");
         }
+        [HttpGet]
+        [Route("FindDrivers")]
+        public Object GetDriver(int DriverId)
+        {
+            if (DriverId > 0 )
+            {
+                Object obj = _dbContext.Drivers.Find(DriverId);
+                if (obj != null)
+                {
+                    return obj;
+                }
+                else
+                {
+                    return Ok("Not Found");
+                }
+            }
+            return Ok("invalid Id");
+        }
         [HttpPost]
         [Route("DeleteDriver")]
         public string DeleteDriver(string? DriverId)

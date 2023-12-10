@@ -35,7 +35,7 @@ namespace FuelApi.Controllers
 
         [HttpPost]
         [Route("AddVehile")]
-        public string AddVehile(VehicleDetails vehicle)
+        public string AddVehicle(VehicleDetails vehicle)
         {
             if (vehicle != null)
             {
@@ -80,6 +80,26 @@ namespace FuelApi.Controllers
             if (VehicleId != null && VehicleId != "")
             {
                 Object obj = _dbContext.VehicleDetails.Find(VehicleId);
+                if (obj != null)
+                {
+                    return obj;
+                }
+                else
+                {
+                    return Ok("Not Found");
+                }
+            }
+            return Ok("invalid Id");
+        }
+
+
+        [HttpGet]
+        [Route("FindVehicles")]
+        public Object GetVehicles(int VehicleId)
+        {
+            if (VehicleId >0)
+            {
+                Object obj = _dbContext.Vehicles.Find(VehicleId);
                 if (obj != null)
                 {
                     return obj;
